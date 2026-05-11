@@ -62,7 +62,7 @@ export function usePresentationState() {
       try {
         const response = await getAgentResponse({
           transcript: userTranscript,
-          current_slide: currentSlideRef.current,
+          current_slide: currentSlideRef.current, // Reading from ref to avoid stale values
           slide_count: SLIDES.length,
           slides_summary: SLIDES_SUMMARY,
         });
@@ -75,6 +75,8 @@ export function usePresentationState() {
           response.slide_index !== undefined &&
           response.slide_index !== null
         ) {
+          // Update slide immediately so the UI reflects the destination
+          // while the agent is still speaking the transition response
           setCurrentSlide(response.slide_index);
           speak(response.response_text, () => {
             setTimeout(() => narrateSlide(response.slide_index!), 800);
@@ -124,6 +126,8 @@ export function usePresentationState() {
     (index: number) => {
       cancel();
       stopSTT();
+      // Explicitly set idle before narrating so the keyboard listener
+      // can fire correctly on the new slide
       setState("idle");
       setCurrentSlide(index);
       setTimeout(() => narrateSlide(index), 300);
@@ -135,7 +139,10 @@ export function usePresentationState() {
     narrateSlide(currentSlide);
   }, [currentSlide, narrateSlide]);
 
-  // Keyboard shortcut — spacebar to interrupt
+  // Spacebar shortcut — uses refs throughout so the handler never
+  // needs to be re-registered when state or slide changes.
+  // Empty deps would cause stale interrupt/narrateSlide refs so we
+  // include them — the listener is cheap to re-register.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code !== "Space") return;
@@ -146,6 +153,8 @@ export function usePresentationState() {
       if (current === "narrating") {
         interrupt();
       } else if (current === "idle") {
+        // Space on idle starts narration rather than opening the mic —
+        // opening the mic before narration has started is unexpected behavior
         narrateSlide(currentSlideRef.current);
       }
     };

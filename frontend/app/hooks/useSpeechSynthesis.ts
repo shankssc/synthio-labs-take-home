@@ -17,16 +17,20 @@ export function useSpeechSynthesis() {
     }
   }, []);
 
-  // Cleanup on unmount
+  // Cleanup on unmount, cancels any active speech on unmount
   useEffect(() => {
     return () => {
       synthRef.current?.cancel();
     };
   }, []);
 
+  // Internal speak function that accepts an explicit muted override.
+  // Used by toggleMute to replay at new volume without triggering
   const speakInternal = useCallback((text: string, onEnd?: () => void, muted?: boolean) => {
     if (!synthRef.current) return;
 
+    // Always cancel before speaking as SpeechSynthesis queues utterances
+    // by default which would cause double-narration on rapid calls
     synthRef.current.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -49,6 +53,7 @@ export function useSpeechSynthesis() {
 
   const speak = useCallback(
     (text: string, onEnd?: () => void) => {
+      // Store text and callback before speaking so toggleMute can replay them
       currentTextRef.current = text;
       currentOnEndRef.current = onEnd;
       speakInternal(text, onEnd);
@@ -57,6 +62,8 @@ export function useSpeechSynthesis() {
   );
 
   const cancel = useCallback(() => {
+    // Clear stored utterance on explicit cancel so toggleMute
+    // doesn't replay something that was intentionally stopped
     currentTextRef.current = "";
     currentOnEndRef.current = undefined;
     synthRef.current?.cancel();
