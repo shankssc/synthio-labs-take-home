@@ -149,6 +149,8 @@ synthio-labs-take-home/
 
 - **Slide navigation by number:** When asked to navigate to a slide by number (e.g. "take me to slide 3"), the agent may land on the wrong slide. This is a zero-indexing mismatch — the slides list is 0-based but Claude interprets and returns indices inconsistently. Navigate by topic instead (e.g. "take me to the Spotify slide") for reliable results.
 
+- **Mute resets narration position:** Toggling mute while the agent is speaking cancels and replays the current utterance from the beginning rather than resuming mid-sentence. This was a conscious scope decision — the Web Speech API does not expose a position cursor on active utterances, so resuming from the exact point of interruption is not straightforward to implement.
+
 ## Browser compatibility
 
 | Browser | Support                                         |
