@@ -122,10 +122,11 @@ synthio-labs-take-home/
 └── frontend/
     ├── app/
     │   ├── components/
-    │   │   ├── SlideView.tsx         # Slide title, body, facts
-    │   │   ├── VoiceOrb.tsx          # Animated mic/state indicator
-    │   │   ├── SlideNav.tsx          # Slide dot progress
-    │   │   └── TranscriptBar.tsx     # User + agent transcript
+    │   │   ├── SlideView.tsx            # Slide title, body, facts
+    │   │   ├── VoiceOrb.tsx             # Animated mic/state indicator
+    │   │   ├── SlideNav.tsx             # Slide dot progress
+    │   │   ├── MuteButton.tsx           # Audio mute toggle
+    │   │   └── TranscriptBar.tsx        # User + agent transcript
     │   ├── hooks/
     │   │   ├── usePresentationState.ts  # Core state machine
     │   │   ├── useSpeechSynthesis.ts    # TTS wrapper
